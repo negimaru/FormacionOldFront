@@ -9,15 +9,30 @@ FOF.Users = {
     var userId = userRequest.userId || 0;
     var event = userRequest.domainEvent || false;
     var dependency = userRequest.dependency ||  false;
-    console.log(userRequest.dependency);
+    var allowCache = userRequest.allowCache || false;
     console.log(userRequest);
+    if(allowCache){
+        var requestCache = JSON.parse(localStorage.getItem(request));
+        var currentDate = ((new Date).getTime());
+        var cacheTimeHours = 1; //Cache Time in Hours
+        var timeToUpdate = hoursToSeconds(cacheTimeHours);
+    }
+    
     /**
      * Fin (Constructor Casero)
      **/
 
     switch(request) {
-        case 'getUser':{ //Suscribir usuario logueado a Premium
-            FOF.Users.getUserData(callbacks,dependency);
+        case 'getUser':{
+            if(allowCache && requestCache != null && ((currentDate - requestCache.cacheLastUpdateDate)/1000) < timeToUpdate ){
+                    console.log('From Cache');
+                    callbacks.run(requestCache)
+                
+            }else{
+                console.log('From ApiCall')
+                FOF.Users.getUserData(callbacks,dependency,allowCache);
+            }
+
             break;
         }
         default:{//No se le ha pasado el parametro request o la peticion no es valida
@@ -27,7 +42,7 @@ FOF.Users = {
 
 
     },
-    getUserData : function(callbacks,dependency){
+    getUserData : function(callbacks,dependency,cache){
         
         dependency.ajax({
             url: "Mocks/users.json",
@@ -35,11 +50,15 @@ FOF.Users = {
             dataType: "json",
             method: 'get',
             success: function (data) {
+                
                 if (!isObjectEmpty(callbacks)) {
                     callbacks.run(data);
                 }
                 if(event){
                     document.dispatchEvent(new CustomEvent(event, {detail: {data}}));
+                }
+                if(cache){
+                    storeInCache(data,'getUser'); //Es importante que se amacene el nombre de la cache con el mismo nombre de la request
                 }
     
             },
@@ -81,6 +100,7 @@ $(document).ready(function(){
         request: 'getUser',
         userId : 1,
         callbacks :getUserCallbacks,
+        allowCache: true,
         domainEvent: 'getUser' //Evento a Disparar cuando se complete la llamada
     }
 
@@ -97,4 +117,20 @@ $(document).ready(function(){
  */
 function isObjectEmpty(obj) {
     return Object.keys(obj).length === 0;
+}
+
+
+
+/**
+ * @description: convierte a segundos una hora dada como cualquier valor numerico
+ * @param : {Number} hours | horas a convertir a segundos
+ */
+function hoursToSeconds(hours) {
+    var seconds = (hours * 60 * 60);
+    return seconds;
+}
+
+function storeInCache(data, cacheName){
+    data.cacheLastUpdateDate = ((new Date).getTime());
+    localStorage.setItem(cacheName, JSON.stringify(data));
 }
