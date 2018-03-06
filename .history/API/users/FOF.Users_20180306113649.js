@@ -65,7 +65,7 @@ var userRequest = {
 }
 
 $(document).ready(function(){
-    FOF.Users.init(userRequest);
+    PCC.Users.init(userRequest);
 });
 
 var getUserCallbacks = {

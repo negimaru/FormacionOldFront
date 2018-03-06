@@ -64,8 +64,8 @@ var userRequest = {
     domainEvent: 'getUser' //Evento a Disparar cuando se complete la llamada
 }
 
-$(document).ready(function(){
-    FOF.Users.init(userRequest);
+$(document).ready(function{
+    PCC.Users.init(userRequest);
 });
 
 var getUserCallbacks = {

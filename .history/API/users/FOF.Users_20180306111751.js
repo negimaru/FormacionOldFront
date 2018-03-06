@@ -8,7 +8,6 @@ FOF.Users = {
     var request = userRequest.request || '';
     var callbacks = userRequest.callbacks || {};
     var userId = userRequest.userId || 0;
-    var event = userRequest.domainEvent || false;
     /**
      * Fin (Constructor Casero)
      **/
@@ -35,17 +34,11 @@ FOF.Users = {
                 if (!isObjectEmpty(callbacks)) {
                     callbacks.run(data);
                 }
-                if(event){
-                    document.dispatchEvent(new CustomEvent(event, {detail: {data}}));
-                }
     
             },
             error : function (data) {
                 if (!isObjectEmpty(callbacks)) {
                     callbacks.errors(data);
-                }
-                if(event){
-                    document.dispatchEvent(new CustomEvent(event, {detail: {data}}));
                 }
             },
             cache: false,
@@ -61,12 +54,11 @@ var userRequest = {
     request: 'getUser',
     userId : 1,
     callbacks :getUserCallbacks,
-    domainEvent: 'getUser' //Evento a Disparar cuando se complete la llamada
+    event: 'getUser' //Evento a Disparar cuando se complete la llamada
 }
 
-$(document).ready(function(){
-    FOF.Users.init(userRequest);
-});
+
+
 
 var getUserCallbacks = {
     run: function(data){
