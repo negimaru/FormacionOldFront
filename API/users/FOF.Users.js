@@ -1,5 +1,4 @@
 var FOF = FOF || {};
-
 FOF.Users = {
     init: function(userRequest){
     /**
@@ -9,13 +8,16 @@ FOF.Users = {
     var callbacks = userRequest.callbacks || {};
     var userId = userRequest.userId || 0;
     var event = userRequest.domainEvent || false;
+    var dependency = userRequest.dependency ||  false;
+    console.log(userRequest.dependency);
+    console.log(userRequest);
     /**
      * Fin (Constructor Casero)
      **/
 
     switch(request) {
         case 'getUser':{ //Suscribir usuario logueado a Premium
-            FOF.Users.getUserData(callbacks);
+            FOF.Users.getUserData(callbacks,dependency);
             break;
         }
         default:{//No se le ha pasado el parametro request o la peticion no es valida
@@ -25,8 +27,9 @@ FOF.Users = {
 
 
     },
-    getUserData : function(callbacks){
-        $.ajax({
+    getUserData : function(callbacks,dependency){
+        
+        dependency.ajax({
             url: "Mocks/users.json",
             data: {},
             dataType: "json",
@@ -57,28 +60,36 @@ FOF.Users = {
 }
 
 
-var userRequest = {
-    request: 'getUser',
-    userId : 1,
-    callbacks :getUserCallbacks,
-    domainEvent: 'getUser' //Evento a Disparar cuando se complete la llamada
-}
+
 
 $(document).ready(function(){
+
+    var getUserCallbacks = {
+        run: function(data){
+            console.log(data);
+        },
+        errors: function(data) {
+            console.log(data);
+        },
+        serverError : function(data){
+            console.log('La Culpa es de Api, preguntar a Pedro');
+        },
+    }
+
+    var userRequest = {
+        dependency : jQuery,
+        request: 'getUser',
+        userId : 1,
+        callbacks :getUserCallbacks,
+        domainEvent: 'getUser' //Evento a Disparar cuando se complete la llamada
+    }
+
+
+
     FOF.Users.init(userRequest);
 });
 
-var getUserCallbacks = {
-    run: function(data){
-        console.log(data);
-    },
-    errors: function(data) {
-        console.log(data);
-    },
-    serverError : function(data){
-        console.log('La Culpa es de Api, preguntar a Pedro');
-    },
-}
+
 
 
 /**
