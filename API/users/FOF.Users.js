@@ -35,6 +35,7 @@ FOF.Users = {
 
             break;
         }
+        case 'setUser':{}
         default:{//No se le ha pasado el parametro request o la peticion no es valida
             console.log('Param Request Empty or not valid');
         }
